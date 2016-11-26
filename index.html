@@ -13,12 +13,9 @@
 <body ng-app="app" ng-cloak>
 
 
-  <md-toolbar layout="row" class="md-toolbar-tools" ng-controller="ToolbarCtrl as toolbarVm">
+  <md-toolbar layout="row" class="md-toolbar-tools">
     <h1>Shopping cart demo</h1>
     <span flex></span>
-    <md-button class="md-icon-button" aria-label="settings" ng-click="toolbarVm.openSettings($event)">
-      <md-icon>settings</md-icon>
-    </md-button>
   </md-toolbar>
 
   <md-content flex id="content" ng-controller="BasketCtrl as basketVm">
@@ -51,7 +48,7 @@
             <th>Продукт</th>
             <th>Цена</th>
             <th>Цена со скидкой</th>
-            <th>Скидка</th>
+            <!-- <th>Скидка</th> -->
             <th></th>
           </thead>
           <tbody>
@@ -59,42 +56,66 @@
               <td>{{ p.product }}</td>
               <td>{{ p.price }}</td>
               <td>{{ p.discountPrice }}</td>
-              <td>{{ p.discount }}</td>
+              <!-- <td>{{ p.discount }}</td> -->
               <td>
-              <md-button class="md-icon-button" ng-click="basketVm.remove($index)" aria-label="remove">
-                <md-icon>remove_shopping_cart</md-icon>
-              </md-button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </md-card-footer>
+                <md-button class="md-icon-button" ng-click="basketVm.remove($index)" aria-label="remove">
+                  <md-icon>remove_shopping_cart</md-icon>
+                </md-button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </md-card-footer>
 
-    <div class="md-actions">
-      <span>Применить скидку</span>
-      <span class="totalDisc">{{ basketVm.totalDisc }}</span>
-      <span>руб.</span>
-      <md-button class="md-raised" ng-click="basketVm.apply($event)" aria-label="apply">Применить</md-button>
-    </div>
+      <form class="md-actions" name="discountForm">
+        <span>Применить скидку</span>
+        <md-input-container>
+          <input required type="number" step="any" name="totalDiscount" ng-model="basketVm.totalDiscount" min="1"
+          max="{{basketVm.totalAmount}}" ng-pattern="/^\d+$/" aria-label="discount" />
 
-  </md-card>
-</md-content>
+          <div ng-messages="discountForm.totalDiscount.$error" multiple md-auto-hide="false">
 
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+            <div ng-message="required">
+              Введите скидку
+            </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+            <div ng-message="min">
+              Скидка должна быть больше нуля
+            </div>
 
-<script>
-  angular
-  .module('app', ['ngMaterial'])
-  .value('config', { discPerc: 1, roundRule: 'round'});
-</script>
+            <div ng-message="pattern">
+              Введите положительное целочисленное значение
+            </div>
 
-<script src="js/main.js"></script>
-<script src="js/toolbar.js"></script>
+            <div ng-message="max">
+              Скидка большей всей суммы
+            </div>
+
+          </div>
+
+        </md-input-container>
+
+        <span>рублей</span>
+        <md-button type="submit" class="md-raised md-primary" ng-click="basketVm.apply($event)" aria-label="apply" ng-disabled="discountForm.$invalid">Применить</md-button>
+
+      </form>
+
+    </md-card>
+  </md-content>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+
+  <script>
+    angular
+    .module('app', ['ngMaterial', 'ngMessages']);
+  </script>
+
+  <script src="js/main.js"></script>
 
 </body>
 </html>
