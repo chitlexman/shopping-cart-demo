@@ -6,15 +6,24 @@
   .module('app')
   .controller('BasketCtrl', BasketCtrl);
 
-  BasketCtrl.$inject = ['config'];
-
-  function BasketCtrl(config) {
+  function BasketCtrl() {
     /*jshint validthis: true */
     var vm = this;
 
     vm.product = '';
-    vm.products = [];
-    vm.totalDisc = 0;
+    vm.products = [{
+      product: 'Телефон',
+      price: 100
+    }, {
+      product: 'Магнитофон',
+      price: 200,
+    }, {
+      product: 'Миелофон',
+      price: 400
+    }];
+
+    vm.totalDiscount = 7;
+    vm.totalAmount = getTotalAmount();
 
     vm.add = add;
     vm.apply = apply;
@@ -26,41 +35,37 @@
         price: vm.price
       });
 
-      calcTotalDiscount();
       clear();
     };
 
     function remove(index) {
       vm.products.splice(index, 1);
-      calcTotalDiscount();
+      calcTotalAmount();
     }
 
     function clear() {
       vm.product = '';
       vm.price = '';
+      calcTotalAmount();
     }
 
-    function getTotalAmmount() {
+    function calcTotalAmount() {
+      vm.totalAmount = getTotalAmount();
+    }
+
+    function getTotalAmount() {
       var totalAmount = 0;
 
-      for (var i = 0; i < vm.products.length; i++ ) {
+      for (var i = 0; i < vm.products.length; i++) {
         totalAmount = totalAmount + vm.products[i].price;
       }
       return totalAmount;
     }
 
-    function getTotalDiscount() {
-      return round( getTotalAmmount() * config.discPerc * .01 );
-    }
-
-    function calcTotalDiscount() {
-      vm.totalDisc = getTotalDiscount();
-    }
-
     function getExpensiveProdIndex() {
       var expProdInd = 0;
 
-      for (var i = 0; i < vm.products.length; i++ ) {
+      for (var i = 0; i < vm.products.length; i++) {
         if ( vm.products[expProdInd].price < vm.products[i].price) {
           expProdInd = i;
         }
@@ -68,33 +73,28 @@
       return expProdInd;
     }
 
-    function round(value) {
-
-      switch (config.roundRule) {
-        case 'round': return Math.round(value); 
-        case 'floor': return Math.floor(value);
-        case 'ceil': return Math.ceil(value);
-        default: return Math.round(value); 
-      }
-    }
-
     function apply() {
-      var totalAmount = getTotalAmmount(),
-          totalDiscount = getTotalDiscount(),
-          expProdInd = getExpensiveProdIndex()
-          vm.totalDisc = totalDiscount;
+      var expProdInd = getExpensiveProdIndex();
+      var discountPerc, discount, sum = 0;
 
-      for (var i = 0; i < vm.products.length; i++ ) {
-        if (i != expProdInd) {
-          var discount = round(vm.products[i].price * config.discPerc * .01);
-          totalDiscount -= discount;
-          vm.products[i].discount = discount;
-          vm.products[i].discountPrice = vm.products[i].price - discount; // todo remake
-        }
+      discountPerc = (vm.totalDiscount / vm.totalAmount).toFixed(2);
+
+      for (var i = 0; i < vm.products.length; i++) {
+        discount = vm.products[i].price * discountPerc;
+        sum += vm.products[i].discount = Math.floor(discount);
+        vm.products[i].discountPrice = vm.products[i].price - vm.products[i].discount;
       }
 
-      vm.products[expProdInd].discount = totalDiscount;
-      vm.products[expProdInd].discountPrice = vm.products[expProdInd].price - totalDiscount;
+      vm.products[expProdInd].discount += vm.totalDiscount - sum;
+      vm.products[expProdInd].discountPrice = vm.products[expProdInd].price - vm.products[expProdInd].discount;
+
+      function getDecimal(num) {
+        var str = "" + num;
+        var zeroPos = str.indexOf(".");
+        if (zeroPos == -1) return 0;
+        str = str.slice(zeroPos);
+        return +str;
+      }
 
     };
   }
