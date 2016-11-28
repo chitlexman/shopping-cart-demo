@@ -77,25 +77,13 @@
       var expProdInd = getExpensiveProdIndex();
       var discountPerc, discount, sum = 0;
 
-      discountPerc = (vm.totalDiscount / vm.totalAmount).toFixed(2);
-
-      for (var i = 0; i < vm.products.length; i++) {
-        discount = vm.products[i].price * discountPerc;
-        sum += vm.products[i].discount = Math.floor(discount);
+      for(var i = 0; i < vm.products.length; i++) {
+        sum += vm.products[i].discount = Math.floor(vm.products[i].price / vm.totalAmount * vm.totalDiscount);
         vm.products[i].discountPrice = vm.products[i].price - vm.products[i].discount;
       }
 
       vm.products[expProdInd].discount += vm.totalDiscount - sum;
       vm.products[expProdInd].discountPrice = vm.products[expProdInd].price - vm.products[expProdInd].discount;
-
-      function getDecimal(num) {
-        var str = "" + num;
-        var zeroPos = str.indexOf(".");
-        if (zeroPos == -1) return 0;
-        str = str.slice(zeroPos);
-        return +str;
-      }
-
     };
   }
 
